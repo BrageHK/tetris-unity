@@ -1,13 +1,16 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using TMPro;
 
 public class Board : MonoBehaviour {
     public TetrominoData[] tetrominoes;
     public Piece activePiece {get; private set;}
     public Tilemap tilemap {get; private set;}
-    public int Score {get; private set;}
+    public int score {get; private set;}
     public Vector3Int spawnPosition = new Vector3Int(-1, 8, 0);
     public Vector2Int boardSize = new Vector2Int(10, 20);
+    private bool wasLastScoreDifficult;
+    public TextMeshProUGUI text;
     
     public RectInt Bounds {
         get {
@@ -27,6 +30,7 @@ public class Board : MonoBehaviour {
 
     private void Start() {
         SpawnTetromino();
+        wasLastScoreDifficult = false;
     }
 
     public void SpawnTetromino() {
@@ -73,28 +77,75 @@ public class Board : MonoBehaviour {
     }
 
     public void GameOver() {
-        Debug.Log("Game over!");
-        //tilemap.ClearAllTiles();
+        //Show score
+        //Show menu
+
+        tilemap.ClearAllTiles();
+        ResetScore();
     }
 
     public void ClearLines() {
         RectInt bounds = Bounds;
 
         int row = bounds.yMin;
+        int linesCleared = 0;
 
         while (row < bounds.yMax) {
             if(IsLineFull(row)) {
                 ClearLine(row);
+                linesCleared++;
             } else {
                 row++;
             }
         }
 
-        for (int y = bounds.yMin; y < bounds.yMax; y++) {
-
-            
-        }
+        AddScore(linesCleared);
     } 
+
+
+    public void AddScore(int linesCleared) {
+        switch(linesCleared) {
+            case 1:
+                wasLastScoreDifficult = false;
+                score += 100;
+                break;
+            case 2:
+                wasLastScoreDifficult = false;
+                score += 300;
+                break;
+            case 3:
+                wasLastScoreDifficult = false;
+                score += 500;
+                break;
+            case 4:
+                wasLastScoreDifficult = true;
+                score += 1000;
+                break;
+            default:
+                break;
+        }
+
+        //if(wasLastScoreDifficult) 
+
+        UpdateScore();
+    }
+
+    public void UpdateScore() {
+        text.text = "Score: " + score.ToString();
+    }
+
+    public void ResetScore() {
+        score = 0;
+        text.text = "Score: 0";
+    }
+
+    public void SoftDropAddPoint() {
+        score +=1;
+    }
+
+    public void HardDropAddPoint() {
+        score +=2;
+    }
 
     public void ClearLine(int line) {
         RectInt bounds = Bounds;
@@ -120,7 +171,6 @@ public class Board : MonoBehaviour {
                 position = new Vector3Int(x, line, 0);
                 tilemap.SetTile(position, above);
             }
-
             line++;
         }
     }
