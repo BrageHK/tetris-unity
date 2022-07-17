@@ -52,6 +52,8 @@ public class Piece : MonoBehaviour {
             Move(Vector2Int.left);
         } else if(direction.y < -0.6f) {
             Move(Vector2Int.down);
+            board.SoftDropAddPoint();
+            board.UpdateScore();
             Vector3Int newPosition = position;
             newPosition.y -= 1;
 
@@ -94,6 +96,7 @@ public class Piece : MonoBehaviour {
     private void OnDrop() {
         board.Clear(this);
         while (Move(Vector2Int.down)) {
+            board.HardDropAddPoint();
             continue;
         }
 

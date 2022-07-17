@@ -21,7 +21,6 @@ public class GhostBlock : MonoBehaviour {
         Copy();
         PositionUpdate();
         SetGhost();
-        Debug.Log(ghostPosition);
     }
 
     public void PositionUpdate() {
