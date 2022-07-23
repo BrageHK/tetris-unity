@@ -18,7 +18,7 @@ public struct TetrominoData {
     public Vector2Int[,] wallKicksI {get; private set;}
     public Vector2Int[,] wallKicks {get; private set;}
    
-   
+
     public void Initialize() {
         cells = Data.Cells[tetromino];
         wallKicks = Data.WallKicks[tetromino];

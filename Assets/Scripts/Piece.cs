@@ -9,7 +9,7 @@ public class Piece : MonoBehaviour {
     public int rotationIndex {get; private set;}
 
     private float time = 0;
-    private float fallTime = 0.75f;
+    private float fallTime = 0.9f;
     
     public void Initialize(Board board, Vector3Int position, TetrominoData data) {
         this.position = position;
@@ -28,6 +28,9 @@ public class Piece : MonoBehaviour {
 
     private void Update() {
         board.Clear(this);
+
+        UpdateFallTime();
+        board.SetSpeedText(fallTime.ToString());
 
         time += Time.deltaTime;
         if(time > fallTime) {
@@ -86,10 +89,12 @@ public class Piece : MonoBehaviour {
     }
 
     private void OnRotateLeft() {
+        Debug.Log("Roate left");
         Rotate(-1);
     }
 
     private void OnRotateRight() {
+        Debug.Log("Roate right");
         Rotate(1);
     }
 
@@ -113,14 +118,13 @@ public class Piece : MonoBehaviour {
         rotationIndex = Wrap(0, 4, rotationIndex + direction);
 
         if (!WallKickTest(rotationIndex,direction)) {
+            Debug.Log("WallkickTest failed. Rotation Index: " + rotationIndex + " Original Rotation: " + originalRotation);
             rotationIndex = originalRotation;
             ApplyRotationMatrix(-direction);
-
         }
     }
 
     private void ApplyRotationMatrix(int direction) {
-        rotationIndex = Wrap(0,4,rotationIndex + direction);
 
         for (int i = 0; i < cells.Length; i++) {
             Vector3 cell = this.cells[i];
@@ -155,10 +159,13 @@ public class Piece : MonoBehaviour {
     }
 
     private bool WallKickTest(int rotationIndex, int rotationDirection) {
+
         int index = WallKickIndex(rotationIndex, rotationDirection);
 
         for (int i = 0; i < data.wallKicks.GetLength(1); i++) {
+
             Vector2Int translation = data.wallKicks[index, i];
+            Debug.Log("Test: " + i + ". " + translation + " Last index: " + rotationIndex+ ". This index: " + index);
 
             if (Move(translation)) {
                 return true;
@@ -177,6 +184,16 @@ public class Piece : MonoBehaviour {
         }
 
         return Wrap(0, data.wallKicks.GetLength(0), wallKickIndex);
+    }
 
+    private void UpdateFallTime() {
+
+        if(board.lastLevel < board.level) {
+            fallTime -= 0.02f;
+            board.EqualLevels();
+        } else if (board.level == 0) {
+            board.ResetLevel();
+            fallTime = 0.9f;
+        }
     }
 }
